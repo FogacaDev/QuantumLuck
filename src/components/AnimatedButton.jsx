@@ -1,0 +1,826 @@
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Easing,
+  Dimensions
+} from 'react-native';
+
+const { width } = Dimensions.get('window');
+
+/**
+ * AnimatedButton.jsx
+ * - preserva todo o comportamento visual / animações
+ * - chama a função passada por prop `onPress` (do App) além de executar revealMessage()
+ */
+const AnimatedButton = ({ onPress }) => {
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
+  const [bgColorIndex, setBgColorIndex] = useState(0);
+
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const bgColorAnim = useRef(new Animated.Value(0)).current;
+
+  const animations = ['shake', 'pulse', 'rotate', 'bounce'];
+
+  // cores de fundo (exemplo — mantém suas cores originais, altere se desejar)
+  // Cores organizadas por tonalidade para transições mais suaves
+const bgColors = [
+  // 💎 CRISTAL ENERGÉTICO (Roxos vibrantes → azuis)
+  '#6a11cb', '#7b2cbf', '#8c3fff', '#9d54ff', '#48dbfb', '#3790fc',
+  
+  // 🌊 ONDA QUÂNTICA (Azuis elétricos → verdes)
+  '#2575fc', '#2f89fc', '#389efc', '#42b3fc', '#4bc9fc', '#55e0fc',
+  
+  // 🌿 RENASCIMENTO (Verdes aqua → esmeralda)
+  '#1dd1a1', '#2edbac', '#3fe6b7', '#50f0c2', '#61fbcd', '#72ffd4',
+  
+  // ✨ ILUMINAÇÃO (Verdes limão → amarelos dourados)
+  '#6cfb48', '#80ff5c', '#94ff70', '#a8ff84', '#bcff98', '#d0ffac',
+  
+  // 🔥 ENERGIAS (Amarelos → laranjas suaves)
+  '#ccff00', '#daff33', '#e8ff66', '#f6ff99', '#fff275', '#ffea6b',
+  
+  // 🌅 TRANSFORMAÇÃO (Laranjas → rosas vibrantes)
+  '#ffbc7d', '#ffa78c', '#ff8b8b', '#ff6b9d', '#f1529a', '#ff3cac',
+  
+  // 💫 ASCENSÃO (Rosas → magentas → púrpuras)
+  '#ce1dd1', '#e836eb', '#ff4fff', '#d19eff', '#b583ff', '#9b00ff',
+  
+  // 🌙 RETORNO CÓSMICO (Púrpuras → azuis noturnos)
+  '#5d57f1', '#6b5ce7', '#7a6bdd', '#8a7ad3', '#9a8ac9', '#aaaac0',
+
+  // 🌌 FUNDO CÓSMICO (Azuis ultra profundos)
+  '#000010', '#020218', '#050527', '#090936', '#0e0e45', '#131354',
+  
+  // 🔮 VIAGEM ESPIRITUAL (Roxos profundos → médios)
+  '#1a1a6a', '#2a2a7a', '#3b3b8b', '#4d4d9d', '#5f5faf', '#7272c2',
+];
+
+
+
+  // função que faz a transição de cor continuamente (exemplo simples)
+ const animateBg = () => {
+  bgColorAnim.setValue(0);
+  Animated.timing(bgColorAnim, {
+    toValue: bgColors.length,
+    duration: bgColors.length * 2000, // - tempo ideal
+    easing: Easing.inOut(Easing.ease), // Easing in-out muito suave
+    useNativeDriver: false,
+  }).start(() => {
+    setBgColorIndex((prev) => (prev + 1) % bgColors.length);
+    animateBg();
+  });
+};
+
+
+  // starta a animação de fundo na primeira render (lazy)
+  React.useEffect(() => {
+    animateBg();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // definição das animações (trimado p/ legibilidade)
+  const executeAnimation = (type) => {
+    switch (type) {
+      case 'shake':
+        return Animated.sequence([
+          Animated.timing(shakeAnim, { toValue: -10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 10, duration: 50, useNativeDriver: true }),
+          Animated.timing(shakeAnim, { toValue: 0, duration: 50, useNativeDriver: true }),
+        ]);
+      case 'pulse':
+        return Animated.sequence([
+          Animated.timing(scaleAnim, { toValue: 1.05, duration: 150, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
+        ]);
+      case 'rotate':
+        return Animated.timing(rotateAnim, { toValue: 1, duration: 500, useNativeDriver: true });
+      case 'bounce':
+        return Animated.sequence([
+          Animated.timing(scaleAnim, { toValue: 0.9, duration: 100, useNativeDriver: true }),
+          Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
+        ]);
+      default:
+        return Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true });
+    }
+  };
+
+  const frases = [  "Acredite na magia de recomeços.",
+    "Sua mente é poderosa. Crie a realidade que deseja.",
+    "A energia que você emana atrai sua realidade.",
+    "Tudo o que você quer está esperando você acreditar.",
+    "A lei da atração está sempre trabalhando a seu favor.",
+    "Aceito com fé o poder divino de renovação que atua em minha vida agora. Cada novo dia é uma manifestação da Graça de Deus.",
+    "Minha mente é um poderoso instrumento de cocriação com o Divino. Meus pensamentos focados moldam minha realidade de forma positiva e tangível.",
+    "Eu emano conscientemente a energia de amor, gratidão e abundância. Esta frequência elevada atrai experiências harmonicamente ressonantes para mim.",
+    "Toda a abundância, amor e sucesso que desejo já existem no campo quântico de potencialidade pura, aguardando minha crença inabalável para se materializar.",
+    "As leis universais operam perfeitamente a meu favor. Tudo o que é enviado de meu coração e mente retorna a mim multiplicado em bênçãos.",
+    "Eu não espero passivamente; eu manifesto ativamente. Minhas ações, palavras e pensamentos estão alinhados com o que desejo atrair.",
+    "O Universo inteligente e amoroso organiza todas as circunstâncias e encontros para a realização dos meus sonhos mais elevados. Eu coopero com esta conspiração divina.",
+    "Eu já sou a versão de mim que alcançou este objetivo. Minhas ações, minha postura e minha fala refletem esta verdade interior agora.",
+    "Minha fé é uma força ativa e transformadora. Através dela, eu transcendo limitações e realizo o que antes parecia impossível.",
+    "Eu aceito e recebo plenamente a abundância infinita do Universo. A prosperidade é meu estado natural e meu direito divino como filho da Fonte.",
+    "Hoje, eu estou aberto e receptivo aos milagres que se manifestam em minha vida. Vejo a mão divina operando em cada detalhe do meu dia.",
+    "A coragem divina flui através de mim. Eu sou incrivelmente capaz e estou equipado com todo o talento e força necessários para meu caminho.",
+    "Eu mereço todas as bênçãos que estão vindo para mim. Eu me permito receber com gratidão e alegria, sem resistência ou culpa.",
+    "Eu expresso gratidão profunda por tudo, como se todos os meus desejos já tivessem se manifestado. Esta vibração acelera a materialização da minha realidade ideal.",
+    "A cada momento, eu escolho expressar a melhor e mais elevada versão de quem eu verdadeiramente sou: um ser espiritual divino e perfeito.",
+    "Eu persisto com fé e ação consistente. Minha perseverança é a ponte que transforma meus desejos em realidade tangível.",
+    "Eu visualizo meus objetivos com clareza cristalina e intensa emoção. Esta imagem mental impressa no subconsciente atrai e cria a circunstância correspondente.",
+    "Eu mantenho meus pensamentos dominantes em paz, amor e abundância. Assim, minha vida se torna um perfeito reflexo destas qualidades.",
+    "Eu elevo conscientemente minha frequência vibracional através do amor, alegria e gratidão. Uma nova realidade, em ressonância com esta frequência, se revela para mim.",
+    "Eu confio plenamente no timing divino e perfeito do Universo. Tudo o que é para mim chega no momento exato e da melhor forma possível.",
+    "Eu uso minhas palavras com poder e verdade, apenas para o bem. Minha intenção é clara, focada e alinhada com meu propósito mais elevado.",
+    "O Cristo dentro de mim, o poder do Universo em mim, é maior do que qualquer desafio ou circunstância externa. Eu sou mais forte que qualquer condição.",
+    "Minha esperança está ancorada na promessa divina, é firme e segura. Ela me mantém estável e confiante em meio a qualquer tempestade.",
+    "Porque eu creio, todas as coisas são possíveis para mim. Minha fé remove obstáculos e abre caminhos onde não parecia haver um.",
+    "Eu acalmo minha mente no silêncio e ouço claramente a voz suave e segura da minha intuição, que é a orientação divina em mim.",
+    "Eu dou o primeiro passo com fé hoje. Este movimento inicial coloca em motion as forças universais para completar toda la jornada.",
+    "Eu me torno em essência aquilo que desejo atrair. Eu sou amor, sou abundância, sou sucesso, e assim atraio essas experiências.",
+    "Eu escolho ver beleza e sentir abundância em tudo ao meu redor. Esta percepção interna magnetiza mais beleza e abundância para minha experiência.",
+    "Eu encarno a paz, o amor e a integridade que desejo ver no mundo. A mudança começa dentro de mim e se irradia para todos.",
+    "Meu desejo é claro, minha determinação é inabalável e minha persistência é constante. O sucesso é o resultado natural e inevitável.",
+    "Eu persisto até que eu alcance. Cada esforço me aproxima do meu objetivo, e eu não desisto porque a vitória é certa.",
+    "O momento presente é o único momento que existe para criar minha realidade. Agora é o momento perfeito para me tornar quem eu nasci para ser.",
+    "A minha crença de 'eu posso' é tão poderosa que instantaneamente me transporta para um ponto mais avançado na realização do meu objetivo.",
+    "Eu vivo plenamente no presente, o eterno Agora. Este momento é um presente divino onde eu concentro todo o meu poder de criação.",
+    "Eu abraço courageousamente o desconforto do crescimento. É no território desconhecido que meus maiores potenciais se revelam e se realizam.",
+    "Eu tomo a decisão motivada de começar. Agora, eu estabeleço hábitos poderosos e consistentes que garantem meu progresso contínuo e automático.",
+    "Eu dissolvo todas as dúvidas com a chama da fé. Meu amanhã é ilimitado porque meu hoje está livre do medo e da incerteza.",
+    "Eu escolho minhas reações com sabedoria. Respondo a todos os eventos com paz, amor e uma perspectiva de aprendizado, criando assim 90% de uma experiência positiva.",
+    "Eu me permito explorar o desconhecido con curiosidade e fé. Estar 'perdido' do velho é necessário para descobrir as novas paisagens do meu potencial.",
+    "Eu me mantenho em constante preparação e aperfeiçoamento. Quando a oportunidade surgir, minha mente preparada a reconhecerá e aproveitará.",
+    "Tudo o que eu consigo conceber com clareza mental e impregnar com a crença sincera, eu posso e vou alcançar. Não há exceções.",
+    "Eu me preparo diligentemente todos os dias. Assim, quando a oportunidade divina surgir, estou pronto para cooperar com ela e criar minha própria 'sorte'.",
+    "Eu escolho ações que geram felicidade agora. A felicidade é um verbo; eu a pratico através da gratidão, do serviço e do amor ativo.",
+    "Cada queda é uma lição. Minha glória está na minha capacidade infinita de me levantar, mais forte e mais sábio a cada vez.",
+    "Eu busco a simplicidade em todos os aspectos da minha vida. Elimino o desnecessário e foco no essencial, que é onde reside o poder e a elegância verdadeiros.",
+    "Eu pratico a paciência comigo mesmo e com o processo divino. Espero com serenidade, sabendo que o fruto do meu trabalho será doce e vale a pena.",
+    "Eu não tento prever o futuro; eu o crio ativamente agora, através dos meus pensamentos, palavras e ações no presente.",
+    "Eu liberto a necessidade de complicar. Volto-me para a simplicidade da verdade, do amor e do momento presente. Minha vida flui com facilidade e graça.",
+    "Cada resultado que não desejo é um degrau no caminho do sucesso. Mantenho meu entusiasmo intacto, pois cada passo me ensina e me aproxima.",
+    "Eu liberto minha imaginação para explorar todas as possibilidades. Meu conhecimento é ferramenta, mas minha imaginação é o poder que cria novas realidades.",
+    "Meu foco está firmemente fixo na visão do objetivo realizado. Os obstáculos são apenas desvios temporários que minha atenção focada contorna.",
+    "A única força capaz de me separar do meu sonho é a minha própria hesitação. Agora, eu escolho agir. A minha vontade de tentar é invencível.",
+    "Eu estou aberto aos milagres e maravilhas, enquanto tomo responsabilidade total por minha vida através de ações consistentes e inspiradas.",
+    "Eu não espero por sorte. Eu sou o arquiteto da minha fortuna. Eu crio oportunidades através da minha iniciativa, criatividade e coragem.",
+    "Eu não estou aqui para me encontrar, estou aqui para me criar. A cada day, eu deliberadamente escolho e construo a pessoa que quero me tornar.",
+    "Eu encontro contentamento e riqueza profunda no momento presente, independente das circunstâncias externas. Minha verdadeira abundância é interna.",
+    "Eu reservo um tempo para a quietude e a reflexão diária. É no silêncio que a sabedoria divina se revela e guia meus passos.",
+    "Eu expresso bondade de forma incondicional. Minhas ações amorosas transmitem uma mensagem poderosa que transcende todos os sentidos físicos.",
+    "Eu me dedico a aprender e a ensinar. Compartilho conhecimento que empodera, liberta e eleva a consciência de todos ao meu redor.",
+    "Eu cultivo relacionamentos genuínos e profundos. Celebro as vitórias dos meus amigos como se fossem minhas e ofereço meu ombro para dividir seus fardos.",
+    "Eu honro meu corpo como um templo divino. Cuido da minha saúde física, mental e espiritual, pois é a base de toda a minha riqueza.",
+    "A minha perseverança contínua dá à luz à minha própria 'sorte'. Eu continuo até que o sucesso seja inevitável.",
+    "Eu pratico a humildade, reconhecendo que sou um canal para a força divina. Esta virtude abre espaço para todas as outras florescerem em mim.",
+    "Eu confio plenamente na minha capacidade de aprender, crescer e superar qualquer desafio. Esta autoconfiança é o alicerce do meu sucesso.",
+    "Eu permito que minha inteligência divina se expresse com alegria e criatividade. Resolvo problemas e crio minha vida de maneira lúdica e inovadora.",
+    "Minha disciplina diária é a ponte sólida que liga o que eu desejo ao que eu realizo. Atravesso essa ponte com consistência e determinação.",
+    "Eu abraço a mudança como a natureza dinâmica da existência. Fluindo con la mudança, eu me mantenho vivo, relevante e em crescimento constante.",
+    "Eu aspiro pela elegância da simplicidade. Removo o excesso e o complexo, encontrando a suprema sofisticação na clareza, na verdade e no essencial.",
+    "Planto a semente da paciência com determinação. Mesmo que exija esforço agora, eu rego-a com fé, sabendo que colherei frutos doces e abundantes.",
+    "Minha esperança é um sonho ativo e consciente. Ela me mantém alerta e orientado para as possibilidades positive que o futuro traz.",
+    "Minha verdadeira liberdade é expressa na minha oportunidade e capacidade contínua de me tornar uma versão melhor e mais elevada de mim mesmo.",
+    "Eu estou plenamente presente e consciente no agora. Presto atenção à vida que está se desenrolando diante de mim, em vez de me perder em planos futuros.",
+    "Sinto o medo e mesmo assim avanço, porque meu propósito, meus valores e minha fé são infinitamente mais importantes do que qualquer medo.",
+    "Eu domino a arte de viver encontrando a lição, a oportunidade e o bem em cada situação, por mais desafiadora que pareça.",
+    "Eu busco a sabedoria em todas as fases da minha vida. Aprendo continuamente e, ao mesmo tempo, pratico imediatamente o que aprendo.",
+    "Eu confio que há um propósito divino e uma inteligência superior por trás de tudo na criação. Tudo tem uma razão de ser e contribui para um todo perfeito.",
+    "Eu sou meticuloso e atento aos detalhes. Este cuidado diligente é o que os outros percebem como 'sorte', mas é simplesmente excelência em ação.",
+    "A minha crença inabalável na vitória é o que, em última análise, a garante. Eu já me vejo vitorioso, e a realidade exterior se ajusta a esta visão.",
+    "Eu sou o inventor do meu futuro. Através das minhas escolhas conscientes no presente, projeto e construo ativamente o amanhã que desejo.",
+    "Vivo com paixão and autenticidade. Perdoo para me libertar, amo profundamente sem reservas e aproveito cada momento precioso desta jornada curta e bela.",
+    "Após adquirir todo o conhecimento, escolho voltar à simplicidade. Este é o pináculo da verdadeira sabedoria: ser simples, claro e em paz.",
+    "Minha felicidade é independente de circunstâncias externas. Ela brota de uma fonte interior inesgotável de paz, amor e contentamento.",
+    "Eu abraço todas as experiências da vida como professoras. Refletindo sobre elas, dou à luz à sabedoria que me guiará no futuro.",
+    "Minha jornada é uma de percepção interna. Vejo o mundo com novos olhos, cheios de admiração, gratidão e novas possibilidades, a cada day.",
+    "Permito que a música eleve meu espírito e cure minha alma. Ela é a ponte que conecta o mundo físico à minha essência espiritual mais profunda.",
+    "Eu permito que a dúvida saudável me leve a questionar, investigar e buscar entendimento mais profundo, que é onde a verdadeira sabedoria começa.",
+    "Minha verdadeira riqueza está na minha capacidade de desfrutar plenamente do que eu tenho, das experiências que vivo e das pessoas que amo.",
+    "Eu escolho a ação diligente e o trabalho significativo. Movimento-me com propósito e velocidade, criando assim momentum de prosperidade e sucesso.",
+    "Estou atento às oportunidades (sorte) que batem à minha porta. Eu as reconheço e tomo a iniciativa de abrir a porta e recebê-las.",
+    "Minha imaginação reina soberana sobre la realidad. Tudo o que é criado pelo homem foi primeiro imaginado. Eu uso este poder real para criar.",
+    "Minha integridade e caráter são os mesmos em público e em privado. Faço o que é certo porque é certo, não por reconhecimento.",
+    "Eu nutro amizades com amor puro e incondicional. Este vínculo é eterno e transcende o tempo, a distância e até mesmo a morte.",
+    "Cada revés é um mestre que me ensina uma lição crítica para a vitória. Aprendo a arte de vencer através do que não deu certo.",
+    "Eu carrego a beleza dentro do meu espírito. Portanto, vejo beleza em tudo e em todos, porque ela é um reflexo da minha própria percepção interior.",
+    "Minha bondade se estende a todas as criaturas vivas. Trato todos os seres com compaixão e respeito, reconhecendo a centelha divina neles.",
+    "Meu coração está constantemente recordando todas as bênçãos, grandes e pequenas. Esta memória vibrante atrai ainda mais razões para ser grato.",
+    "Eu mantenho minha honra e integridade acima de tudo. Sei que uma vez comprometidas, são extremamente difíceis de recuperar. Escolho agir con honra sempre.",
+    "Eu questiono o status quo com educação e respeito. Minha inteligência me permite desafiar ideias antigas de forma construtiva, buscando sempre a evolução.",
+    "Eu busco agir com justiça e promptidão em todos os meus assuntos. Entendo que atrasos na justiça perpetuam a injustiça, e me comprometo a ser ágil e correto.",
+    "Minha maior aventura é a transformação da minha própria percepção. Vejo o mundo com olhos de amor, curiosidade e admiração, descobrindo maravilhas em cada momento.",
+    "Eu peço em fé e já recebo em gratidão, porque sei que Deus e o Universo conspiram a meu favor.",
+    "Assim como está escrito: 'Pedi e recebereis', eu me abro hoje para receber abundantemente tudo o que é meu por direito divino.",
+    "Eu sou grato antes mesmo de ver a manifestação, porque sei que o invisível já se move para se tornar visível.",
+    "Minha mente, quando aquietada em oração e meditação, é um templo onde o Espírito Santo guia meus desejos e passos.",
+    "Eu declaro que tudo o que peço em oração, crendo, já está realizado em minha vida.",
+    "A visualização é minha forma de fé ativa. Ao ver com clareza, eu já manifesto a realidade desejada.",
+    "Com a força da palavra, eu chamo à existência aquilo que ainda não vejo, pois sei que o verbo tem poder criador.",
+    "O código de Isaías 22:22 está ativo em me: portas se abrem e nada pode fechá-las, porque meu caminho é divinamente guiado.",
+    "Eu mentalizo a luz ao meu redor e atraio soluções, prosperidade, amor e paz em cada respiração.",
+    "Assim como o salmista dizia 'O Senhor é meu pastor, nada me faltará', eu descanso no fluxo da provisão infinita.",
+    "A cada pensamento de gratidão, eu me conecto ao fluxo da vida e atraio ainda mais motivos para agradecer.",
+    "Eu pratico o 'pedir, acreditar e receber' em todos os aspectos do meu day. Esta tríade é a chave da realização.",
+    "Meus pensamentos elevados são sementes plantadas no jardim do Universo, and eu colho frutos abundantes.",
+    "Eu aplico a técnica do 'como se': ajo, penso e sinto como se já fosse real, e assim o invisível toma forma.",
+    "Eu silencio minha mente para ouvir a voz interior, que sempre me guia ao caminho certo.",
+    "O Universo responde ao meu estado interior. Ao elevar minha vibração com gratidão, eu atraio bênçãos correspondentes.",
+    "Eu pratico o perdão, porque sei que liberar libera espaço para receber novas dádivas divinas.",
+    "Eu confio no tempo perfeito de Deus, que não se atrasa nem se adianta, mas cumpre em perfeição.",
+    "A energia criadora que move as estrelas também move a realização dos meus sonhos.",
+    "A cada manhã, eu declaro: hoje milagres acontecem em minha vida de forma natural.",
+    "Assim como Jesus multiplicou pães, minha fé multiplica recursos, oportunidades e caminhos.",
+    "Eu alinho meus desejos à vontade divina e, por isso, tudo o que chega até mim traz paz and prosperidade.",
+    "Visualizo a vida que desejo e sinto alegria antecipada, porque sei que já estou no caminho certo.",
+    "A palavra de Isaías 41:10 ecoa em me: 'Não temas, porque eu sou contigo', e por isso caminho confiante.",
+    "A gratidão é meu código secreto: quanto mais agradeço, mais recebo.",
+    "Eu mentalizo minha oração como já respondida e celebro o milagre antes mesmo de vê-lo acontecer.",
+    "Minha mente e coração são antenas que captam a frequência do céu e a manifestam na Terra.",
+    "Oração e ação caminham juntas em minha vida; eu peço, creio e ajo com confiança.",
+    "Eu confesso: tudo o que preciso já me foi dado, and eu apenas manifesto com fé e alegria.",
+    "O Universo, Deus e minha fé formam uma aliança perfeita de criação, e eu sou coautor da minha história.",
+    "Eu ajo hoje como se todos os meus desejos já estivessem realizados, confiando plenamente na força do Universo.",
+    "Eu manifesto prosperidade em todas as áreas da minha vida através de pensamentos, palavras e ações alinhadas.",
+    "Cada passo que dou é guiado pela sabedoria divina e me aproxima da realização dos meus sonhos.",
+    "Eu declaro com fé que minhas orações são ouvidas e respondidas de forma perfeita e imediata.",
+    "Minha mente está aberta e receptiva às oportunidades que o Universo envia em resposta à minha intenção.",
+    "Eu sou grato antecipadamente por cada bênção que se manifesta em minha vida agora.",
+    "Eu visualizo meu sucesso com clareza e tomo ações consistentes para tornar essa visão real.",
+    "Assim como está escrito: 'Pedi e recebereis', eu peço com fé e recebo com gratidão.",
+    "Eu uso minha palavra como instrumento de criação, falando somente o que é bom, positivo e alinhado com meu propósito.",
+    "Eu ajo com coragem e confiança, sabendo que cada movimento me aproxima da minha abundância.",
+    "Eu mentalizo a perfeição do meu caminho e vejo portas se abrindo diante de mim.",
+    "A cada ação inspirada, o Universo responde com oportunidades e milagres em minha vida.",
+    "Eu manifesto amor, saúde e prosperidade através da minha intenção clara e coração puro.",
+    "Eu agradeço pelo invisível que trabalha agora para trazer visibilidade aos meus desejos.",
+    "Eu confio na inteligência divina que organiza todas as circunstâncias a meu favor.",
+    "Minha fé me impulsiona a agir com determinação e a criar resultados extraordinários.",
+    "Eu visualizo meus objetivos e sinto a emoção de já os ter alcançado, acelerando sua manifestação.",
+    "Eu pratico la gratidão diariamente, reconhecendo tudo o que já é meu e tudo o que está por vir.",
+    "Eu sou co-criador da minha realidade e ajo de forma consistente para que ela se manifeste.",
+    "Cada pensamento positivo é uma semente de manifestação que floresce em minha vida com abundância.",
+    "Eu ajo como se já tivesse alcançado minhas metas, e assim trago-as para o presente.",
+    "Eu confesso: minha vida é um reflexo do meu pensamento, fé e ações alinhadas ao bem maior.",
+    "Eu recebo respostas divinas através da minha intuição e ajo prontamente sobre elas.",
+    "Eu libero o medo e a dúvida, tomando decisões inspiradas e corajosas todos os dias.",
+    "Eu invoco a proteção e orientação do Universo em cada ação e escolha que faço.",
+    "Eu declaro vitória e sucesso em todas as situações, mesmo antes de vê-los acontecer.",
+    "Eu mentalizo saúde perfeita, abundância financeira e paz interior e ajo para que se concretizem.",
+    "Eu agradeço por cada desafio, porque eles me fortalecem e me ensinam a crescer.",
+    "Eu tomo ações diárias que refletem minha fé e aceleram a realização de meus sonhos.",
+    "Eu confio que o Universo me dá exatamente o que preciso, no momento perfeito e da melhor forma.",
+    "Eu ajo com coragem diante de qualquer obstáculo, sabendo que sou guiado por uma força maior.",
+    "Eu visualizo portas se abrindo e tomo a iniciativa de atravessá-las com confiança.",
+    "Eu manifesto milagres através de pensamentos positivos, oração e ações inspiradas.",
+    "Eu agradeço antecipadamente por cada conquista e alegria que chega à minha vida.",
+    "Eu sou persistente e disciplinado; cada esforço me aproxima do meu objetivo maior.",
+    "Eu uso o poder da palavra de Deus para afirmar saúde, abundância e proteção em minha vida.",
+    "Eu ajo com propósito e clareza, criando oportunidades e atraindo abundância.",
+    "Eu mentalizo soluções criativas para cada desafio e ajo para implementá-las imediatamente.",
+    "Eu confio na orientação divina e sigo sinais que me direcionam ao meu bem maior.",
+    "Eu ajo com fé inabalável, mesmo quando os resultados ainda não são visíveis.",
+    "Eu visualizo minha vida ideal todos os dias e tomo medidas concretas para torná-la realidade.",
+    "Eu agradeço por cada manifestação, sabendo que minha gratidão multiplica os resultados.",
+    "Eu sou a expressão do amor e abundância do Universo em ação no mundo.",
+    "Eu ajo como se todos os meus sonhos já fossem realidade, sentindo a emoção de tê-los agora.",
+    "Eu manifesto saúde, felicidade e sucesso em minha vida através de ações inspiradas.",
+    "Eu confesso que minha mente e coração estão alinhados com o fluxo da abundância universal.",
+    "Eu mentalizo prosperidade financeira e tomo atitudes consistentes para materializá-la.",
+    "Eu ajo com coragem diante do desconhecido, sabendo que o Universo guia cada passo meu.",
+    "Eu agradeço pelo invisível e pelo visível, reconhecendo que ambos trabalham a meu favor.",
+    "Eu declaro vitória, sucesso e realização em todos os aspectos da minha vida agora.",
+    "Eu visualizo meus objetivos con clareza e os atraio através de pensamentos e ações coerentes.",
+    "Eu manifesto oportunidades extraordinárias ao tomar decisões alinhadas com minha intuição e fé.",
+    "Eu ajo com determinação, confiança e amor, criando resultados surpreendentes.",
+    "Eu sou grato por cada momento presente, que me permite criar a vida que desejo.",
+    "Eu mentalizo abundância e prosperidade e ajo de acordo com essa visão todos os dias.",
+    "Eu confio na inteligência divina que guia minha vida e minhas ações com perfeição.",
+    "Eu ajo com iniciativa, sabendo que cada movimento consciente aproxima meus desejos da realidade.",
+    "Eu manifesto milagres ao agir com fé, gratidão and propósito claros.",
+    "Eu visualizo meu sucesso e ajo como se ele já fosse uma realidade presente em minha vida.",
+    "Eu agradeço antecipadamente por cada realização, sabendo que o Universo está a meu favor.",
+    "Eu ajo como um canal da abundância divina, recebendo e compartilhando bênçãos diariamente.",
+    "Eu confesso que mereço toda a prosperidade, amor e saúde que chegam até mim agora.",
+    "Eu mentalizo minha vida ideal com detalhes vívidos e tomo ações que a tornam concreta.",
+    "Eu ajo com confiança e coragem, sabendo que o Universo responde a cada ação inspirada.",
+    "Eu agradeço pelas portas que se abrem e atravesso cada oportunidade com fé e alegria.",
+    "Eu manifesto tudo o que peço com fé, paciência e ação diligente.",
+    "Eu visualizo resultados positivos em cada situação e tomo medidas concretas para realizá-los.",
+    "Eu ajo em harmonia com o Universo, alinhando meus pensamentos, palavras e ações.",
+    "Eu sou grato pelo que tenho e pelo que está chegando, criando um fluxo contínuo de abundância.",
+    "Eu confio que cada passo que dou é guiado pela sabedoria divina.",
+    "Eu manifesto meus desejos através de visualização, oração e ações consistentes.",
+    "Eu ajo com coragem, amor e determinação, atraindo milagres para minha vida.",
+    "Eu mentalizo soluções, oportunidades e abundância, e tomo decisões que as tornam reais.",
+    "Eu agradeço por cada bênção que chega, fortalecendo minha conexão com o Universo.",
+    "Eu manifesto saúde, amor, prosperidade e paz através de ações e pensamentos alinhados.",
+    "Eu ajo com fé e gratidão, confiando que cada movimento meu tem propósito divino.",
+    "Eu visualizo meu futuro ideal e tomo medidas diárias que me aproximam dele.",
+    "Eu confesso vitória, abundância e bem-estar em todos os aspectos da minha vida agora.",
+    "Eu manifesto milagres diariamente através da combinação de fé, ação e gratidão.",
+    "Eu ajo como se todos os meus desejos já fossem realidade, sentindo a emoção de tê-los agora.",
+    "Eu mentalizo abundância, saúde e felicidade e tomo ações consistentes para manifestá-las.",
+    "Eu agradeço antecipadamente por cada conquista, fortalecendo minha vibração e atração.",
+    "Eu manifesto oportunidades e soluções ao alinhar minha mente, coração e ações com o divino.",
+    "Eu ajo com determinação e fé, confiando que cada passo me leva ao meu bem maior.",
+    "Eu visualizo abundância infinita e ajo como se já estivesse vivendo essa realidade.",
+    "Eu confesso que cada oração, pensamento positivo e ação inspirada cria milagres em minha vida.",
+    "Eu manifesto prosperidade e felicidade ao agir com coragem, clareza e gratidão.",
+    "Eu mentalizo minha vida ideal e tomo medidas diárias que a tornam visível e real.",
+    "Eu ajo como co-criador da minha realidade, confiando plenamente no fluxo do Universo.",
+    "Eu agradeço pelo visível e pelo invisível, sabendo que tudo trabalha em meu favor.",
+    "Eu manifesto sucesso, saúde e amor ao agir com fé, coragem e intenção clara.",
+    "Eu visualizo meus sonhos realizados e tomo ações que aceleram sua concretização.",
+    "Eu confesso que mereço todas as bênçãos que chegam e ajo de forma a recebê-las plenamente.",
+    "Eu manifesto milagres, abundância e alegria em minha vida através de pensamentos, palavras e ações consistentes.",
+    "Eu ajo diariamente como se todos os meus desejos já fossem reais, sentindo alegria e gratidão.",
+    "Acredite na magia de recomeços.",
+    "Sua mente é poderosa. Crie a realidade que deseja.",
+    "A energia que você emana atrai sua realidade.",
+    "Tudo o que você quer está esperando você acreditar.",
+    "A lei da atração está sempre trabalhando a seu favor.",
+    "Aceito com fé o poder divino de renovação que atua em minha vida agora. Cada novo dia é uma manifestação da Graça de Deus.",
+    "Minha mente é um poderoso instrumento de cocriação com o Divino. Meus pensamentos focados moldam minha realidade de forma positiva e tangível.",
+    "Eu emano conscientemente a energia de amor, gratidão e abundância. Esta frequência elevada atrai experiências harmonicamente ressonantes para mim.",
+    "Toda a abundância, amor e sucesso que desejo já existem no campo quântico de potencialidade pura, aguardando minha crença inabalável para se materializar.",
+    "As leis universais operam perfeitamente a meu favor. Tudo o que é enviado de meu coração e mente retorna a mim multiplicado em bênçãos.",
+    "Eu não espero passivamente; eu manifesto ativamente. Minhas ações, palavras e pensamentos estão alinhados com o que desejo atrair.",
+    "O Universo inteligente e amoroso organiza todas as circunstâncias e encontros para a realização dos meus sonhos mais elevados. Eu coopero com esta conspiração divina.",
+    "Eu já sou a versão de mim que alcançou este objetivo. Minhas ações, minha postura e minha fala refletem esta verdade interior agora.",
+    "Minha fé é uma força ativa e transformadora. Através dela, eu transcendo limitações e realizo o que antes parecia impossível.",
+    "Eu aceito e recebo plenamente a abundância infinita do Universo. A prosperidade é meu estado natural e meu direito divino como filho da Fonte.",
+    "Hoje, eu estou aberto e receptivo aos milagres que se manifestam em minha vida. Vejo a mão divina operando em cada detalhe do meu dia.",
+    "A coragem divina flui através de mim. Eu sou incrivelmente capaz e estou equipado com todo o talento e força necessários para meu caminho.",
+    "Eu mereço todas as bênçãos que estão vindo para mim. Eu me permito receber com gratidão e alegria, sem resistência ou culpa.",
+    "Eu expresso gratidão profunda por tudo, como se todos os meus desejos já tivessem se manifestado. Esta vibração acelera a materialização da minha realidade ideal.",
+    "A cada momento, eu escolho expressar a melhor e mais elevada versão de quem eu verdadeiramente sou: um ser espiritual divino e perfeito.",
+    "Eu persisto com fé e ação consistente. Minha perseverança é a ponte que transforma meus desejos em realidade tangível.",
+    "Eu visualizo meus objetivos com clareza cristalina e intensa emoção. Esta imagem mental impressa no subconsciente atrai e cria a circunstância correspondente.",
+    "Eu mantenho meus pensamentos dominantes em paz, amor e abundância. Assim, minha vida se torna um perfeito reflexo destas qualidades.",
+    "Eu elevo conscientemente minha frequência vibracional através do amor, alegria e gratidão. Uma nova realidade, em ressonância com esta frequência, se revela para mim.",
+    "Eu confio plenamente no timing divino e perfeito do Universo. Tudo o que é para mim chega no momento exato e da melhor forma possível.",
+    "Eu uso minhas palavras com poder e verdade, apenas para o bem. Minha intenção é clara, focada e alinhada com meu propósito mais elevado.",
+    "O Cristo dentro de mim, o poder do Universo em mim, é maior do que qualquer desafio ou circunstância externa. Eu sou mais forte que qualquer condição.",
+    "Minha esperança está ancorada na promessa divina, é firme e segura. Ela me mantém estável e confiante em meio a qualquer tempestade.",
+    "Porque eu creio, todas as coisas são possíveis para mim. Minha fé remove obstáculos e abre caminhos onde não parecia haver um.",
+    "Eu acalmo minha mente no silêncio e ouço claramente a voz suave e segura da minha intuição, que é a orientação divina em mim.",
+    "Eu dou o primeiro passo com fé hoje. Este movimento inicial coloca em motion as forças universais para completar toda la jornada.",
+    "Eu me torno em essência aquilo que desejo atrair. Eu sou amor, sou abundância, sou sucesso, e assim atraio essas experiências.",
+    "Eu escolho ver beleza e sentir abundância em tudo ao meu redor. Esta percepção interna magnetiza mais beleza e abundância para minha experiência.",
+    "Eu encarno a paz, o amor e a integridade que desejo ver no mundo. A mudança começa dentro de mim e se irradia para todos.",
+    "Meu desejo é claro, minha determinação é inabalável e minha persistência é constante. O sucesso é o resultado natural e inevitável.",
+    "Eu persisto até que eu alcance. Cada esforço me aproxima do meu objetivo, e eu não desisto porque a vitória é certa.",
+    "O momento presente é o único momento que existe para criar minha realidade. Agora é o momento perfeito para me tornar quem eu nasci para ser.",
+    "A minha crença de 'eu posso' é tão poderosa que instantaneamente me transporta para um ponto mais avançado na realização do meu objetivo.",
+    "Eu vivo plenamente no presente, o eterno Agora. Este momento é um presente divino onde eu concentro todo o meu poder de criação.",
+    "Eu abraço courageousamente o desconforto do crescimento. É no território desconhecido que meus maiores potenciais se revelam e se realizam.",
+    "Eu tomo a decisão motivada de começar. Agora, eu estabeleço hábitos poderosos e consistentes que garantem meu progresso contínuo e automático.",
+    "Eu dissolvo todas as dúvidas com a chama da fé. Meu amanhã é ilimitado porque meu hoje está livre do medo e da incerteza.",
+    "Eu escolho minhas reações com sabedoria. Respondo a todos os eventos com paz, amor e uma perspectiva de aprendizado, criando assim 90% de uma experiência positiva.",
+    "Eu me permito explorar o desconhecido con curiosidade e fé. Estar 'perdido' do velho é necessário para descobrir as novas paisagens do meu potencial.",
+    "Eu me mantenho em constante preparação e aperfeiçoamento. Quando a oportunidade surgir, minha mente preparada a reconhecerá e aproveitará.",
+    "Tudo o que eu consigo conceber com clareza mental e impregnar com a crença sincera, eu posso e vou alcançar. Não há exceções.",
+    "Eu me preparo diligentemente todos os dias. Assim, quando a oportunidade divina surgir, estou pronto para cooperar com ela e criar minha própria 'sorte'.",
+    "Eu escolho ações que geram felicidade agora. A felicidade é um verbo; eu a pratico através da gratidão, do serviço e do amor ativo.",
+    "Cada queda é uma lição. Minha glória está na minha capacidade infinita de me levantar, mais forte e mais sábio a cada vez.",
+    "Eu busco a simplicidade em todos os aspectos da minha vida. Elimino o desnecessário e foco no essencial, que é onde reside o poder e a elegância verdadeiros.",
+    "Eu pratico a paciência comigo mesmo e com o processo divino. Espero com serenidade, sabendo que o fruto do meu trabalho será doce e vale a pena.",
+    "Eu não tento prever o futuro; eu o crio ativamente agora, através dos meus pensamentos, palavras e ações no presente.",
+    "Eu liberto a necessidade de complicar. Volto-me para a simplicidade da verdade, do amor e do momento presente. Minha vida flui com facilidade e graça.",
+    "Cada resultado que não desejo é um degrau no caminho do sucesso. Mantenho meu entusiasmo intacto, pois cada passo me ensina e me aproxima.",
+    "Eu liberto minha imaginação para explorar todas as possibilidades. Meu conhecimento é ferramenta, mas minha imaginação é o poder que cria novas realidades.",
+    "Meu foco está firmemente fixo na visão do objetivo realizado. Os obstáculos são apenas desvios temporários que minha atenção focada contorna.",
+    "A única força capaz de me separar do meu sonho é a minha própria hesitação. Agora, eu escolho agir. A minha vontade de tentar é invencível.",
+    "Eu estou aberto aos milagres e maravilhas, enquanto tomo responsabilidade total por minha vida através de ações consistentes e inspiradas.",
+    "Eu não espero por sorte. Eu sou o arquiteto da minha fortuna. Eu crio oportunidades através da minha iniciativa, criatividade e coragem.",
+    "Eu não estou aqui para me encontrar, estou aqui para me criar. A cada day, eu deliberadamente escolho e construo a pessoa que quero me tornar.",
+    "Eu encontro contentamento e riqueza profunda no momento presente, independente das circunstâncias externas. Minha verdadeira abundância é interna.",
+    "Eu reservo um tempo para a quietude e a reflexão diária. É no silêncio que a sabedoria divina se revela e guia meus passos.",
+    "Eu expresso bondade de forma incondicional. Minhas ações amorosas transmitem uma mensagem poderosa que transcende todos os sentidos físicos.",
+    "Eu me dedico a aprender e a ensinar. Compartilho conhecimento que empodera, liberta e eleva a consciência de todos ao meu redor.",
+    "Eu cultivo relacionamentos genuínos e profundos. Celebro as vitórias dos meus amigos como se fossem minhas e ofereço meu ombro para dividir seus fardos.",
+    "Eu honro meu corpo como um templo divino. Cuido da minha saúde física, mental e espiritual, pois é a base de toda a minha riqueza.",
+    "A minha perseverança contínua dá à luz à minha própria 'sorte'. Eu continuo até que o sucesso seja inevitável.",
+    "Eu pratico a humildade, reconhecendo que sou um canal para a força divina. Esta virtude abre espaço para todas as outras florescerem em mim.",
+    "Eu confio plenamente na minha capacidade de aprender, crescer e superar qualquer desafio. Esta autoconfiança é o alicerce do meu sucesso.",
+    "Eu permito que minha inteligência divina se expresse com alegria e criatividade. Resolvo problemas e crio minha vida de maneira lúdica e inovadora.",
+    "Minha disciplina diária é a ponte sólida que liga o que eu desejo ao que eu realizo. Atravesso essa ponte com consistência e determinação.",
+    "Eu abraço a mudança como a natureza dinâmica da existência. Fluindo con la mudança, eu me mantenho vivo, relevante e em crescimento constante.",
+    "Eu aspiro pela elegância da simplicidade. Removo o excesso e o complexo, encontrando a suprema sofisticação na clareza, na verdade e no essencial.",
+    "Planto a semente da paciência com determinação. Mesmo que exija esforço agora, eu rego-a com fé, sabendo que colherei frutos doces e abundantes.",
+    "Minha esperança é um sonho ativo e consciente. Ela me mantém alerta e orientado para as possibilidades positive que o futuro traz.",
+    "Minha verdadeira liberdade é expressa na minha oportunidade e capacidade contínua de me tornar uma versão melhor e mais elevada de mim mesmo.",
+    "Eu estou plenamente presente e consciente no agora. Presto atenção à vida que está se desenrolando diante de mim, em vez de me perder em planos futuros.",
+    "Sinto o medo e mesmo assim avanço, porque meu propósito, meus valores e minha fé são infinitamente mais importantes do que qualquer medo.",
+    "Eu domino a arte de viver encontrando a lição, a oportunidade e o bem em cada situação, por mais desafiadora que pareça.",
+    "Eu busco a sabedoria em todas as fases da minha vida. Aprendo continuamente e, ao mesmo tempo, pratico imediatamente o que aprendo.",
+    "Eu confio que há um propósito divino e uma inteligência superior por trás de tudo na criação. Tudo tem uma razão de ser e contribui para um todo perfeito.",
+    "Eu sou meticuloso e atento aos detalhes. Este cuidado diligente é o que os outros percebem como 'sorte', mas é simplesmente excelência em ação.",
+    "A minha crença inabalável na vitória é o que, em última análise, a garante. Eu já me vejo vitorioso, e a realidade exterior se ajusta a esta visão.",
+    "Eu sou o inventor do meu futuro. Através das minhas escolhas conscientes no presente, projeto e construo ativamente o amanhã que desejo.",
+    "Vivo com paixão and autenticidade. Perdoo para me libertar, amo profundamente sem reservas e aproveito cada momento precioso desta jornada curta e bela.",
+    "Após adquirir todo o conhecimento, escolho voltar à simplicidade. Este é o pináculo da verdadeira sabedoria: ser simples, claro e em paz.",
+    "Minha felicidade é independente de circunstâncias externas. Ela brota de uma fonte interior inesgotável de paz, amor e contentamento.",
+    "Eu abraço todas as experiências da vida como professoras. Refletindo sobre elas, dou à luz à sabedoria que me guiará no futuro.",
+    "Minha jornada é uma de percepção interna. Vejo o mundo com novos olhos, cheios de admiração, gratidão e novas possibilidades, a cada day.",
+    "Permito que a música eleve meu espírito e cure minha alma. Ela é a ponte que conecta o mundo físico à minha essência espiritual mais profunda.",
+    "Eu permito que a dúvida saudável me leve a questionar, investigar e buscar entendimento mais profundo, que é onde a verdadeira sabedoria começa.",
+    "Minha verdadeira riqueza está na minha capacidade de desfrutar plenamente do que eu tenho, das experiências que vivo e das pessoas que amo.",
+    "Eu escolho a ação diligente e o trabalho significativo. Movimento-me com propósito e velocidade, criando assim momentum de prosperidade e sucesso.",
+    "Estou atento às oportunidades (sorte) que batem à minha porta. Eu as reconheço e tomo a iniciativa de abrir a porta e recebê-las.",
+    "Minha imaginação reina soberana sobre la realidad. Tudo o que é criado pelo homem foi primeiro imaginado. Eu uso este poder real para criar.",
+    "Minha integridade e caráter são os mesmos em público e em privado. Faço o que é certo porque é certo, não por reconhecimento.",
+    "Eu nutro amizades com amor puro e incondicional. Este vínculo é eterno e transcende o tempo, a distância e até mesmo a morte.",
+    "Cada revés é um mestre que me ensina uma lição crítica para a vitória. Aprendo a arte de vencer através do que não deu certo.",
+    "Eu carrego a beleza dentro do meu espírito. Portanto, vejo beleza em tudo e em todos, porque ela é um reflexo da minha própria percepção interior.",
+    "Minha bondade se estende a todas as criaturas vivas. Trato todos os seres com compaixão e respeito, reconhecendo a centelha divina neles.",
+    "Meu coração está constantemente recordando todas as bênçãos, grandes e pequenas. Esta memória vibrante atrai ainda mais razões para ser grato.",
+    "Eu mantenho minha honra e integridade acima de tudo. Sei que uma vez comprometidas, são extremamente difíceis de recuperar. Escolho agir con honra sempre.",
+    "Eu questiono o status quo com educação e respeito. Minha inteligência me permite desafiar ideias antigas de forma construtiva, buscando sempre a evolução.",
+    "Eu busco agir com justiça e promptidão em todos os meus assuntos. Entendo que atrasos na justiça perpetuam a injustiça, e me comprometo a ser ágil e correto.",
+    "Minha maior aventura é a transformação da minha própria percepção. Vejo o mundo com olhos de amor, curiosidade e admiração, descobrindo maravilhas em cada momento.",
+    "Eu peço em fé e já recebo em gratidão, porque sei que Deus e o Universo conspiram a meu favor.",
+    "Assim como está escrito: 'Pedi e recebereis', eu me abro hoje para receber abundantemente tudo o que é meu por direito divino.",
+    "Eu sou grato antes mesmo de ver a manifestação, porque sei que o invisível já se move para se tornar visível.",
+    "Minha mente, quando aquietada em oração e meditação, é um templo onde o Espírito Santo guia meus desejos e passos.",
+    "Eu declaro que tudo o que peço em oração, crendo, já está realizado em minha vida.",
+    "A visualização é minha forma de fé ativa. Ao ver com clareza, eu já manifesto a realidade desejada.",
+    "Com a força da palavra, eu chamo à existência aquilo que ainda não vejo, pois sei que o verbo tem poder criador.",
+    "O código de Isaías 22:22 está ativo em me: portas se abrem e nada pode fechá-las, porque meu caminho é divinamente guiado.",
+    "Eu mentalizo a luz ao meu redor e atraio soluções, prosperidade, amor e paz em cada respiração.",
+    "Assim como o salmista dizia 'O Senhor é meu pastor, nada me faltará', eu descanso no fluxo da provisão infinita.",
+    "A cada pensamento de gratidão, eu me conecto ao fluxo da vida e atraio ainda mais motivos para agradecer.",
+    "Eu pratico o 'pedir, acreditar e receber' em todos os aspectos do meu day. Esta tríade é a chave da realização.",
+    "Meus pensamentos elevados são sementes plantadas no jardim do Universo, and eu colho frutos abundantes.",
+    "Eu aplico a técnica do 'como se': ajo, penso e sinto como se já fosse real, e assim o invisível toma forma.",
+    "Eu silencio minha mente para ouvir a voz interior, que sempre me guia ao caminho certo.",
+    "O Universo responde ao meu estado interior. Ao elevar minha vibração com gratidão, eu atraio bênçãos correspondentes.",
+    "Eu pratico o perdão, porque sei que liberar libera espaço para receber novas dádivas divinas.",
+    "Eu confio no tempo perfeito de Deus, que não se atrasa nem se adianta, mas cumpre em perfeição.",
+    "A energia criadora que move as estrelas também move a realização dos meus sonhos.",
+    "A cada manhã, eu declaro: hoje milagres acontecem em minha vida de forma natural.",
+    "Assim como Jesus multiplicou pães, minha fé multiplica recursos, oportunidades e caminhos.",
+    "Eu alinho meus desejos à vontade divina e, por isso, tudo o que chega até mim traz paz and prosperidade.",
+    "Visualizo a vida que desejo e sinto alegria antecipada, porque sei que já estou no caminho certo.",
+    "A palavra de Isaías 41:10 ecoa em me: 'Não temas, porque eu sou contigo', e por isso caminho confiante.",
+    "A gratidão é meu código secreto: quanto mais agradeço, mais recebo.",
+    "Eu mentalizo minha oração como já respondida e celebro o milagre antes mesmo de vê-lo acontecer.",
+    "Minha mente e coração são antenas que captam a frequência do céu e a manifestam na Terra.",
+    "Oração e ação caminham juntas em minha vida; eu peço, creio e ajo com confiança.",
+    "Eu confesso: tudo o que preciso já me foi dado, and eu apenas manifesto com fé e alegria.",
+    "O Universo, Deus e minha fé formam uma aliança perfeita de criação, e eu sou coautor da minha história.",
+    "Eu ajo hoje como se todos os meus desejos já estivessem realizados, confiando plenamente na força do Universo.",
+    "Eu manifesto prosperidade em todas as áreas da minha vida através de pensamentos, palavras e ações alinhadas.",
+    "Cada passo que dou é guiado pela sabedoria divina e me aproxima da realização dos meus sonhos.",
+    "Eu declaro com fé que minhas orações são ouvidas e respondidas de forma perfeita e imediata.",
+    "Minha mente está aberta e receptiva às oportunidades que o Universo envia em resposta à minha intenção.",
+    "Eu sou grato antecipadamente por cada bênção que se manifesta em minha vida agora.",
+    "Eu visualizo meu sucesso com clareza e tomo ações consistentes para tornar essa visão real.",
+    "Assim como está escrito: 'Pedi e recebereis', eu peço com fé e recebo com gratidão.",
+    "Eu uso minha palavra como instrumento de criação, falando somente o que é bom, positivo e alinhado com meu propósito.",
+    "Eu ajo com coragem e confiança, sabendo que cada movimento me aproxima da minha abundância.",
+    "Eu mentalizo a perfeição do meu caminho e vejo portas se abrindo diante de mim.",
+    "A cada ação inspirada, o Universo responde com oportunidades e milagres em minha vida.",
+    "Eu manifesto amor, saúde e prosperidade através da minha intenção clara e coração puro.",
+    "Eu agradeço pelo invisível que trabalha agora para trazer visibilidade aos meus desejos.",
+    "Eu confio na inteligência divina que organiza todas as circunstâncias a meu favor.",
+    "Minha fé me impulsiona a agir com determinação e a criar resultados extraordinários.",
+    "Eu visualizo meus objetivos e sinto a emoção de já os ter alcançado, acelerando sua manifestação.",
+    "Eu pratico la gratidão diariamente, reconhecendo tudo o que já é meu e tudo o que está por vir.",
+    "Eu sou co-criador da minha realidade e ajo de forma consistente para que ela se manifeste.",
+    "Cada pensamento positivo é uma semente de manifestação que floresce em minha vida com abundância.",
+    "Eu ajo como se já tivesse alcançado minhas metas, e assim trago-as para o presente.",
+    "Eu confesso: minha vida é um reflexo do meu pensamento, fé e ações alinhadas ao bem maior.",
+    "Eu recebo respostas divinas através da minha intuição e ajo prontamente sobre elas.",
+    "Eu libero o medo e a dúvida, tomando decisões inspiradas e corajosas todos os dias.",
+    "Eu invoco a proteção e orientação do Universo em cada ação e escolha que faço.",
+    "Eu declaro vitória e sucesso em todas as situações, mesmo antes de vê-los acontecer.",
+    "Eu mentalizo saúde perfeita, abundância financeira e paz interior e ajo para que se concretizem.",
+    "Eu agradeço por cada desafio, porque eles me fortalecem e me ensinam a crescer.",
+    "Eu tomo ações diárias que refletem minha fé e aceleram a realização de meus sonhos.",
+    "Eu confio que o Universo me dá exatamente o que preciso, no momento perfeito e da melhor forma.",
+    "Eu ajo com coragem diante de qualquer obstáculo, sabendo que sou guiado por uma força maior.",
+    "Eu visualizo portas se abrindo e tomo a iniciativa de atravessá-las com confiança.",
+    "Eu manifesto milagres através de pensamentos positivos, oração e ações inspiradas.",
+    "Eu agradeço antecipadamente por cada conquista e alegria que chega à minha vida.",
+    "Eu sou persistente e disciplinado; cada esforço me aproxima do meu objetivo maior.",
+    "Eu uso o poder da palavra de Deus para afirmar saúde, abundância e proteção em minha vida.",
+    "Eu ajo com propósito e clareza, criando oportunidades e atraindo abundância.",
+    "Eu mentalizo soluções criativas para cada desafio e ajo para implementá-las imediatamente.",
+    "Eu confio na orientação divina e sigo sinais que me direcionam ao meu bem maior.",
+    "Eu ajo com fé inabalável, mesmo quando os resultados ainda não são visíveis.",
+    "Eu visualizo minha vida ideal todos os dias e tomo medidas concretas para torná-la realidade.",
+    "Eu agradeço por cada manifestação, sabendo que minha gratidão multiplica os resultados.",
+    "Eu sou a expressão do amor e abundância do Universo em ação no mundo.",
+    "Eu ajo como se todos os meus sonhos já fossem realidade, sentindo a emoção de tê-los agora.",
+    "Eu manifesto saúde, felicidade e sucesso em minha vida através de ações inspiradas.",
+    "Eu confesso que minha mente e coração estão alinhados com o fluxo da abundância universal.",
+    "Eu mentalizo prosperidade financeira e tomo atitudes consistentes para materializá-la.",
+    "Eu ajo com coragem diante do desconhecido, sabendo que o Universo guia cada passo meu.",
+    "Eu agradeço pelo invisível e pelo visível, reconhecendo que ambos trabalham a meu favor.",
+    "Eu declaro vitória, sucesso e realização em todos os aspectos da minha vida agora.",
+    "Eu visualizo meus objetivos con clareza e os atraio através de pensamentos e ações coerentes.",
+    "Eu manifesto oportunidades extraordinárias ao tomar decisões alinhadas com minha intuição e fé.",
+    "Eu ajo com determinação, confiança e amor, criando resultados surpreendentes.",
+    "Eu sou grato por cada momento presente, que me permite criar a vida que desejo.",
+    "Eu mentalizo abundância e prosperidade e ajo de acordo com essa visão todos os dias.",
+    "Eu confio na inteligência divina que guia minha vida e minhas ações com perfeição.",
+    "Eu ajo com iniciativa, sabendo que cada movimento consciente aproxima meus desejos da realidade.",
+    "Eu manifesto milagres ao agir com fé, gratidão and propósito claros.",
+    "Eu visualizo meu sucesso e ajo como se ele já fosse uma realidade presente em minha vida.",
+    "Eu agradeço antecipadamente por cada realização, sabendo que o Universo está a meu favor.",
+    "Eu ajo como um canal da abundância divina, recebendo e compartilhando bênçãos diariamente.",
+    "Eu confesso que mereço toda a prosperidade, amor e saúde que chegam até mim agora.",
+    "Eu mentalizo minha vida ideal com detalhes vívidos e tomo ações que a tornam concreta.",
+    "Eu ajo com confiança e coragem, sabendo que o Universo responde a cada ação inspirada.",
+    "Eu agradeço pelas portas que se abrem e atravesso cada oportunidade com fé e alegria.",
+    "Eu manifesto tudo o que peço com fé, paciência e ação diligente.",
+    "Eu visualizo resultados positivos em cada situação e tomo medidas concretas para realizá-los.",
+    "Eu ajo em harmonia com o Universo, alinhando meus pensamentos, palavras e ações.",
+    "Eu sou grato pelo que tenho e pelo que está chegando, criando um fluxo contínuo de abundância.",
+    "Eu confio que cada passo que dou é guiado pela sabedoria divina.",
+    "Eu manifesto meus desejos através de visualização, oração e ações consistentes.",
+    "Eu ajo com coragem, amor e determinação, atraindo milagres para minha vida.",
+    "Eu mentalizo soluções, oportunidades e abundância, e tomo decisões que as tornam reais.",
+    "Eu agradeço por cada bênção que chega, fortalecendo minha conexão com o Universo.",
+    "Eu manifesto saúde, amor, prosperidade e paz através de ações e pensamentos alinhados.",
+    "Eu ajo com fé e gratidão, confiando que cada movimento meu tem propósito divino.",
+    "Eu visualizo meu futuro ideal e tomo medidas diárias que me aproximam dele.",
+    "Eu confesso vitória, abundância e bem-estar em todos os aspectos da minha vida agora.",
+    "Eu manifesto milagres diariamente através da combinação de fé, ação e gratidão.",
+    "Eu ajo como se todos os meus desejos já fossem realidade, sentindo a emoção de tê-los agora.",
+    "Eu mentalizo abundância, saúde e felicidade e tomo ações consistentes para manifestá-las.",
+    "Eu agradeço antecipadamente por cada conquista, fortalecendo minha vibração e atração.",
+    "Eu manifesto oportunidades e soluções ao alinhar minha mente, coração e ações com o divino.",
+    "Eu ajo com determinação e fé, confiando que cada passo me leva ao meu bem maior.",
+    "Eu visualizo abundância infinita e ajo como se já estivesse vivendo essa realidade.",
+    "Eu confesso que cada oração, pensamento positivo e ação inspirada cria milagres em minha vida.",
+    "Eu manifesto prosperidade e felicidade ao agir com coragem, clareza e gratidão.",
+    "Eu mentalizo minha vida ideal e tomo medidas diárias que a tornam visível e real.",
+    "Eu ajo como co-criador da minha realidade, confiando plenamente no fluxo do Universo.",
+    "Eu agradeço pelo visível e pelo invisível, sabendo que tudo trabalha em meu favor.",
+    "Eu manifesto sucesso, saúde e amor ao agir com fé, coragem e intenção clara.",
+    "Eu visualizo meus sonhos realizados e tomo ações que aceleram sua concretização.",
+    "Eu confesso que mereço todas as bênçãos que chegam e ajo de forma a recebê-las plenamente.",
+    "Eu manifesto milagres, abundância e alegria em minha vida através de pensamentos, palavras e ações consistentes.",
+    "Eu ajo diariamente como se todos os meus desejos já fossem reais, sentindo alegria e gratidão.",
+    "Assim como Yeshua declarou 'peça e será dado', meu pedido já está respondido no reino  da potencialidade divina, e eu recebo agora.",
+    "Minha fé move montanhas de probabilidades, reorganizando partículas e possibilidades de acordo com a vontade do Altíssimo.",
+    "Como está escrito em Marcos 11:24, creio que já recebi tudo quanto peço em oração, e assim será na manifestação tangível.",
+    "Eu sou como o homem sensível que construiu sua casa sobre a rocha, minha realidade é fundamentada na rocha eterna da Palavra imutável.",
+    "Assim como os israelitas colheram o maná no deserto, eu colho diariamente o maná  das possibilidades divinas.",
+    "Minha mente renovada em Cristo percebe além do véu da matéria, observando a realidade quântica onde todos os dons já estão concedidos.",
+    "Como Abraão, eu vejo o invisível conto as estrelas do potencial e manifesto a promessa em minha experiência terrena.",
+    "Eu acordo o dom quântico que há em mim pela imposição das mãos do Espírito Santo, ativando potenciais adormecidos.",
+    "Assim como a arca de Noé, minha consciência é um receptáculo quântico que preserva e manifesta novas realidades.",
+    "Eu decreto a luz nas trevas como no princípio da criação, trazendo ordem  ao caos aparente em minha vida.",
+    "Minha oração eficaz pode muito em seus efeitos quânticos, reorganizando realidades como fez Elias ao orar pela chuva.",
+    "Como os discípulos no barco, eu ordeno 'paz, aquieta-te' às tempestades  da minha vida, e há grande bonança.",
+    "Eu visto toda a armadura de Deus para permanecer firme contra as forças  contrárias nos lugares celestiais.",
+    "Assim como o azeite da viúva se multiplicou, minha abundância  se expande infinitamente quando compartilhada.",
+    "Eu sou templo do Espírito Santo - cada átomo do meu ser está sobrenaturalmente entrelaçado com a mente de Cristo.",
+    "Como Josué, eu ordeno ao sol e à lua das minhas circunstâncias que se detenham até que se cumpra a vitória.",
+    "Minha confissão positiva cria realidades, pois a morte e a vida estão no poder da língua.",
+    "Assim como Pedro caminhou sobre as águas, eu caminho sobre o oceano quântico das possibilidades através da fé focada.",
+    "Eu libero anjos ministradores que executam a Palavra para manifestar realidades abençoadas.",
+    "Como Daniel na cova dos leões, minha fé sela a boca das probabilidades negativas e anula seus efeitos.",
+    "Eu ativo o dom de discernir para perceber as correntes espirituais que influenciam minha realidade.",
+    "Assim como a mulher do fluxo de sangue, meu toque de fé extrai virtude  do manto de Cristo para minha cura.",
+    "Eu acordo o fogo do altar celestial como Elias, consumindo ofertas de dúvida e manifestando o fogo da fé.",
+    "Minha mente de Cristo decifra os mistérios quânticos do reino, revelando segredos escondidos desde a fundação do mundo.",
+    "Como os ossos secos de Ezequiel, minhas áreas mortas revivem mediante o sopro quântico do Espírito Santo.",
+    "Eu profetizo aos ventos quânticos que trazem mudança, ordenando que soprem direção à minha vida.",
+    "Assim como a transformação da água em vinho, eu testemunho transformações instantâneas em minha realidade.",
+    "Eu ando no espírito para não cumprir a desejos da carne, transcendendo realidades quânticas densas.",
+    "Como Paulo e Silas na prisão, meu louvor liberta terremotos  que abrem portas anteriormente trancadas.",
+    "Minha unção quebra jugos de limitação como o jugo de madeira que Isaías profetizou.",
+    "Eu aplico o sangue do Cordeiro nos umbrais da minha consciência, protegendo-me de forças  destrutivas.",
+    "Assim como a coluna de nuvem e fogo, a presença divina me guia através do campo quântico do deserto para a terra prometida.",
+    "Eu visto a túnica colorida de José, discernindo sonhos quânticos e interpretando realidades futuras.",
+    "Minha fé é substantiva, é a certeza  das coisas que se esperam,a convicção do não visto.",
+    "Como a semente de mostarda, minha fé cresce de pequeno começo até abrigar todas as aves do céu.",
+    "Eu entro no repouso sabático onde cessam minhas obras e permito que Deus opere quânticamente em meu favor.",
+    "Assim como o paralítico de Betesda, eu recebo poder para levantar-me e andar em novas realidades .",
+    "Eu como o rolo de Ezequiel, assimilando a Palavra que se torna em meu interior fonte de manifestação quântica.",
+    "Minha oração no espírito edifica-me na fé , orando além da compreensão mental limitada.",
+    "Como a rede cheia de peixes, minha consciência expande-se para receber a abundância  preparada.",
+    "Eu libero o poder do 'Eis que faço novas todas as coisas' em cada área da minha realidade .",
+    "Assim como a transfiguração, minha natureza interior revela-se em glória, transcendendo a matéria densa.",
+    "Eu ativo os dons de cura para manifestar saúde  perfeita, como os apóstolos faziam.",
+    "Minha comunhão com o Espírito Santo sintoniza-me com a frequência quântica do trono celestial.",
+    "Como o bom samaritano, eu transponho barreiras  para manifestar amor incondicional.",
+    "Eu decreto que haja luz nas trevas de qualquer situação, e há luz quântica instantânea.",
+    "Assim como o filho pródigo, eu retorno à consciência do Pai onde toda riqueza me espera.",
+    "Eu manifesto os frutos do espírito como realidades tangíveis em meu campo experiencial.",
+    "Minha meditação na Palavra faz-me prosperar em todas as empresas, como prometido a Josué.",
+    "Como a multiplicação dos pães, eu abençôo o pouco e testemunho sua expansão.",
+    "Eu entro no Santo dos Santos pelo sangue de Yeshua, acessando realidades divinas.",
+    "Assim como Raabe, eu ato com fé estratégica e vejo minha casa preservada em meio ao caos.",
+    "Eu libero o espírito de sabedoria e revelação para conhecer a esperança do meu chamamento quântico.",
+    "Minha armadura espiritual protege-me nas batalhas quânticas contra principados e potestades.",
+    "Como a sarça ardente, eu me torno portal quântico onde o divino se manifesta sem me consumir.",
+    "Eu ordeno aos montes de obstáculos que se removam e sejam lançados no mar quântico do não-manifesto.",
+    "Assim como Ester, eu me aproximo do trono com ousadia para alterar decretos quânticos.",
+    "Eu ativo o dom de variedade de línguas para orar além das limitações quânticas do intelecto.",
+    "Minha unção quebra jugos como a unção de Elias que passou para Eliseu em dobro.",
+    "Como o centurião, eu reconheço a autoridade de Cristo que cura à distância.",
+    "Eu manifesto a paz que excede todo entendimento, guardando meu coração e mente em Cristo Jesus.",
+    "Assim como a visão de Pedro, eu recebo revelações que transcendem tradições limitantes.",
+    "Eu entro na terra prometida da consciência de Cristo onde leite e mel fluem abundantemente.",
+    "Minha fé é como o grão de mostarda que cresce até abrigar todas as aves do céu, pequeno começo, grande expansão.",
+    "Como os discípulos no caminho de Emaús, meus olhos quânticos se abrem para reconhecer Cristo em cada experiência.",
+    "Eu libero dons de milagres para operar maravilhas que glorificam ao Pai.",
+    "Assim como a pesca milagrosa, eu lanço minha rede onde Cristo indica e colho abundância.",
+    "Eu manifesto a mente de Cristo que discerne todas as coisas, inclusive realidades quânticas ocultas.",
+    "Minha oração no monte como Jesus me transfigura perante realidades desafiantes.",
+    "Como a mulher siro-fenícia, eu persisto em minha fé até ver a manifestação desejada.",
+    "Eu ativo a autoridade do nome de Yeshua para dissipar nuvens de dúvida e medo.",
+    "Assim como a transformação de Saulo em Paulo, minha consciência experimenta conversão instantânea.",
+    "Eu ando sobre as águas turbulentas do mar com os olhos fixos no Mestre.",
+    "Minha comunhão com os irmãos na fé amplifica o poder da minha oração em Cristo.",
+    "Como o salmista, eu libero cânticos novos que abrem portais quânticos de libertação.",
+    "Eu manifesto a glória de Deus que enche o templo da minha consciência como na visão de Isaías.",
+    "Assim como a dedicação do templo por Salomão, eu consagro meu ser como habitação quântica do Espírito.",
+    "Eu decreto que os ossos secos de situações sem vida revivam pelo sopro do Espírito.",
+    "Minha fé remove a pedra do sepulcro de possibilidades aparentemente mortas como Lázaro.",
+    "Como a viúva persistente, eu continuo batendo à porta da justiça até receber resposta.",
+    "Eu entro no rio de águas vivas que flui do trono, carregando cura para as nações.",
+    "Assim como a multiplicação do azeite da viúva, eu vejo recursos se expandirem milagrosamente.",
+    "Eu manifesto a plenitude de Cristo que enche todas as coisas em todas as dimensões.",
+    "Minha oração no jardim do Getsêmani submete minha vontade à vontade superior do Pai.",
+    "Como a descida do Espírito em Pentecostes, eu recebo línguas de fogo que dissipam confusão.",
+    "Eu libero profecias que ativam potenciais quânticos adormecidos no espírito humano.",
+    "Assim como a transformação da água em vinho nas bodas de Caná, eu testemunho milagres que glorificam a Cristo.",
+    "Eu ando na luz como Ele está na luz, e o sangue de Jesus me purifica de toda realidade quântica dissonante.",
+    "Minha comunhão com o Pai me concede as chaves do reino para ligar e desligar realidades.",
+    "Como a visão de João em Patmos, eu acesso revelações do fim desde o princípio.",
+    "Eu manifesto o shalom hebraico completo, paz, prosperidade e plenitude em todas as áreas.",
+    "Assim como o êxodo do Egito, eu libero minha consciência da escravidão para a terra prometida.",
+    "Eu ativo o dom de fé para remover montanhas de probabilidades contrárias ao meu chamado.",
+    "Minha meditação diária na Palavra faz-me como árvore plantada junto a correntes de águas calmas.",
+    "Como a cura do cego de nascença, eu recebo visão quântica para ver além das aparências naturais.",
+    "Eu decreto que haja vida em lugares de morte, como Eliseu sobre o filho da sunamita.",
+    "Assim como o maná no deserto, eu recebo nutrição divina específica para cada dia.",
+    "Eu manifesto a unção de Jesus que quebra jugos como descrito em Isaías 10:27.",
+    "Minha oração em Cristo com outros crentes da fé cria sinergia quântica multiplicadora de resultados.",
+    "Como a arca da aliança, eu carrego a presença de Deus que derruba fortalezas.",
+    "Eu entro no descanso divino onde cesso meus esforços e permito que Deus opere em minha vida.",
+    "Assim como a sarça ardente, eu me torno manifestação do divino sem ser consumido.",
+    "Eu libero anjos que acampam ao meu redor para proteger minha jornada em vida eterna.",
+    "Minha fé é o elo que conecta o potencial celestial com a manifestação terrena.",
+    "Como a transformação de Moisés diante da sarça, eu removo as sandálias da mentalidade limitada para pisar em terra santa."
+  ];
+
+  const revealMessage = () => {
+    const randomAnimation = animations[Math.floor(Math.random() * animations.length)];
+    const randomIndex = Math.floor(Math.random() * frases.length);
+
+    shakeAnim.setValue(0);
+    scaleAnim.setValue(1);
+    rotateAnim.setValue(0);
+    fadeAnim.setValue(0);
+
+    executeAnimation(randomAnimation).start(() => {
+      setCurrentMessage(frases[randomIndex]);
+      setShowMessage(true);
+
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const shakeInterpolation = shakeAnim.interpolate({
+    inputRange: [-10, 10],
+    outputRange: [-10, 10],
+  });
+
+  const rotateInterpolation = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const backgroundColor = bgColorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [bgColors[bgColorIndex], bgColors[(bgColorIndex + 1) % bgColors.length]],
+  });
+
+  // ---------------------------
+  // Aqui está a correção essencial:
+  // Ao pressionar o botão chamamos revealMessage() (visual)
+  // e também chamamos a função passada pelo App via prop `onPress`
+  // para que o App conte cliques e dispare anúncios.
+  // ---------------------------
+  const onButtonPress = () => {
+    // executa ação visual interna
+    revealMessage();
+    // se o App passou uma função, chama ela também (contagem / anúncios)
+    try {
+      if (typeof onPress === 'function') {
+        onPress();
+      }
+    } catch (e) {
+      console.warn('Erro ao chamar onPress da prop:', e);
+    }
+  };
+
+  return (
+    <Animated.View style={[styles.container, { backgroundColor }]}>
+      <View style={styles.content}>
+        <Text style={styles.title}>QuantumLuck</Text>
+        <Text style={styles.subtitle}>Feche os olhos, mentalize seu desejo</Text>
+
+        <Animated.View
+          style={[
+            styles.buttonContainer,
+            {
+              transform: [
+                { translateX: shakeInterpolation },
+                { scale: scaleAnim },
+                { rotate: rotateInterpolation },
+              ],
+            },
+          ]}
+        >
+          <TouchableOpacity style={styles.button} onPress={onButtonPress}>
+            <Text style={styles.buttonText}>✨ Manifestar Realidade ✨</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        {showMessage && (
+          <Animated.View style={[styles.messageBox, { opacity: fadeAnim }]}>
+            <Text style={styles.messageText}>{currentMessage}</Text>
+          </Animated.View>
+        )}
+      </View>
+    </Animated.View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  content: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    borderRadius: 20,
+    margin: 20,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 10,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
+  },
+  subtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 40, textAlign: 'center' },
+  buttonContainer: {
+    borderRadius: 35,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: 'rgba(0, 0, 0, 1)',
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    borderRadius: 35,
+    minWidth: width * 0.7,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(217, 0, 255, 0.66)',
+  },
+  buttonText: { color: '#ffffffff', fontSize: 20, fontWeight: 'bold', textAlign: 'center' },
+  messageBox: {
+    backgroundColor: 'rgba(226, 221, 221, 0.95)',
+    padding: 25,
+    borderRadius: 20,
+    marginTop: 30,
+    borderWidth: 1,
+    borderColor: 'rgba(217, 0, 255, 0.66)',
+    shadowColor: 'rgba(0, 0, 0, 1)',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+    maxWidth: width * 0.9,
+  },
+  messageText: { fontSize: 20, textAlign: 'center', color: '#000000ff', lineHeight: 28, fontStyle: 'italic' },
+});
+
+export default AnimatedButton;
