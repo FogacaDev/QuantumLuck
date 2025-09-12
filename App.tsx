@@ -83,7 +83,7 @@ export default function App() {
       onPress={() => setInstructionsVisible(true)}
       style={styles.instructionsButton}
     >
-      <Text style={styles.infoIcon}>❓</Text>
+      <Text style={styles.infoIcon}>ℹ️</Text>
     </TouchableOpacity>
 
     {/* BANNER SUPERIOR */}
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: 'transparent',
   },
   instructionsButton: {
     position: 'absolute',
