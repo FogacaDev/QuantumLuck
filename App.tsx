@@ -96,6 +96,10 @@ export default function App() {
         <AnimatedButton onPress={handleButtonClick} />
       </View>
 
+      <View style={styles.creditsFooter}>
+        <Text style={styles.creditsText}>Desenvolvido por Renan Fogaça</Text>
+      </View>
+
       {/* BANNER INFERIOR */}
       <View style={styles.bottomBannerContainer}>
         <BannerAd unitId={adUnitId} size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER} />
@@ -131,8 +135,10 @@ export default function App() {
               {"\n"}
               • Mentalize a frase como realidade já manifestada
               {"\n"}
+              {/* RODAPÉ COM CRÉDITOS */}
               • Permita que a frequência quântica impregne cada célula
               {"\n\n"}
+              
               <Text style={styles.modalQuote}>
                 "Três frases, três minutos, três vezes ao dia, 9 minutos de meditação por sessão são 27 minutos de programação diários. {"\n"}
                 QuantumLuck seu App de Meditação guiada te dá a fórmula para reprogramação mental."
@@ -271,7 +277,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  creditsFooter: {
+    paddingVertical: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  creditsText: {
+    fontSize: 12,
+    color: '#777',
+    textAlign: 'center',
+  },
 });
+
 
 
 
