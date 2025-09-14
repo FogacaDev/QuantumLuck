@@ -10,12 +10,13 @@
   },
   "dependencies": {
     "expo": "~53.0.22",
+    "expo-dev-client": "~5.2.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.6",
+    "react-native-confetti-cannon": "^1.5.2",
     "react-native-google-mobile-ads": "^15.7.0",
-    "react-native-reanimated": "~3.17.4",
-    "expo-dev-client": "~5.2.4"
+    "react-native-reanimated": "~3.17.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

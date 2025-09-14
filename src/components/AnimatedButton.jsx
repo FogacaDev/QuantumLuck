@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+
 import {
   View,
   Text,
@@ -29,69 +30,89 @@ const AnimatedButton = ({ onPress }) => {
 
   const animations = ['shake', 'pulse', 'rotate', 'bounce'];
 
-  // cores de fundo (exemplo — mantém suas cores originais, altere se desejar)
-  // Cores organizadas por tonalidade para transições mais suaves
-const bgColors = [
-  // 💎 CRISTAL ENERGÉTICO (Roxos vibrantes → azuis)
-  '#6a11cb', '#7b2cbf', '#8c3fff', '#9d54ff', '#48dbfb', '#3790fc',
-  
-  // 🌊 ONDA QUÂNTICA (Azuis elétricos → verdes)
-  '#2575fc', '#2f89fc', '#389efc', '#42b3fc', '#4bc9fc', '#55e0fc',
-  
-  // 🌿 RENASCIMENTO (Verdes aqua → esmeralda)
-  '#1dd1a1', '#2edbac', '#3fe6b7', '#50f0c2', '#61fbcd', '#72ffd4',
-  
-  // ✨ ILUMINAÇÃO (Verdes limão → amarelos dourados)
-  '#6cfb48', '#80ff5c', '#94ff70', '#a8ff84', '#bcff98', '#d0ffac',
-  
-  // 🔥 ENERGIAS (Amarelos → laranjas suaves)
-  '#ccff00', '#daff33', '#e8ff66', '#f6ff99', '#fff275', '#ffea6b',
-  
-  // 🌅 TRANSFORMAÇÃO (Laranjas → rosas vibrantes)
-  '#ffbc7d', '#ffa78c', '#ff8b8b', '#ff6b9d', '#f1529a', '#ff3cac',
-  
-  // 💫 ASCENSÃO (Rosas → magentas → púrpuras)
-  '#ce1dd1', '#e836eb', '#ff4fff', '#d19eff', '#b583ff', '#9b00ff',
-  
-  // 🌙 RETORNO CÓSMICO (Púrpuras → azuis noturnos)
-  '#5d57f1', '#6b5ce7', '#7a6bdd', '#8a7ad3', '#9a8ac9', '#aaaac0',
+  // cores de fundo
 
-  // 🌌 FUNDO CÓSMICO (Azuis ultra profundos)
-  '#000010', '#020218', '#050527', '#090936', '#0e0e45', '#131354',
   
-  // 🔮 VIAGEM ESPIRITUAL (Roxos profundos → médios)
-  '#1a1a6a', '#2a2a7a', '#3b3b8b', '#4d4d9d', '#5f5faf', '#7272c2',
-  '#6a11cb'
+
+  // Cores organizadas por tonalidade para transições mais suaves
+  const bgColors = [
+  // 💎 CAMADA 3: CRISTALIZAÇÃO ENERGÉTICA (Púrpuras vibrantes)
+  '#8C3FFF', '#9D54FF', '#AE69FF', '#BF7EFF', '#D093FF', '#E1A8FF',
+  
+  // 🔮 CAMADA 4: PORTAL DIMENSIONAL (Violetas → Azuis profundos)
+  '#6A11CB', '#5B2BDF', '#4C45F3', '#3D5FFF', '#2E79FF', '#1F93FF',
+  
+  // 🌊 CAMADA 5: ONDAS QUÂNTICAS (Azuis elétricos → Celestes)
+  '#0FA8FF', '#00BCFF', '#00D0FF', '#00E4FF', '#00F8FF', '#0CFFFC',
+  
+  // 🌀 CAMADA 6: VÓRTICE DE CONSCIÊNCIA (Azuis → Turquesas)
+  '#18FFE8', '#24FFD4', '#30FFC0', '#3CFFAC', '#48FF98', '#54FF84',
+  
+  // 🌿 CAMADA 7: RENASCIMENTO VERDE (Turquesas → Esmeraldas)
+  '#60FF70', '#6CFF5C', '#78FF48', '#84FF34', '#90FF20', '#9CFF0C',
+  
+  // ✨ CAMADA 8: ILUMINAÇÃO DOURADA (Verdes → Amarelos solares)
+  '#A8FF00', '#B4F000', '#C0E000', '#CCD000', '#D8C000', '#E4B000',
+  
+  // ☀️ CAMADA 9: CENTRO SOLAR (Amarelos → Laranjas radiantes)
+  '#F0A000', '#FC9000', '#FF8000', '#FF700C', '#FF6018', '#FF5024',
+  
+  // 🔥 CAMADA 10: FOGO TRANSFORMADOR (Laranjas → Vermelhos passionais)
+  '#FF4030', '#FF303C', '#FF2048', '#FF1054', '#FF0060', '#FF006C',
+  
+  // ❤️ CAMADA 11: CORAÇÃO CÓSMICO (Vermelhos → Magentas profundos)
+  '#FF0078', '#FF0084', '#FF0090', '#FF009C', '#FF00A8', '#FF00B4',
+  
+  // 🌸 CAMADA 12: FLORESCIMENTO ESPIRITUAL (Magentas → Púrpuras suaves)
+  '#FF00C0', '#F012CC', '#E224D8', '#D436E4', '#C648F0', '#B85AFC',
+  
+  // 🦋 CAMADA 13: METAMORFOSE FINAL (Púrpuras → Azuis noturnos)
+  '#AA6CFF', '#9C7EFF', '#8E90FF', '#80A2FF', '#72B4FF', '#64C6FF',
+
+  // 🌑 CAMADA 1: RAÍZES TERRENAS (Profundidade → Estabilidade)
+  '#0A0008', '#1A0012', '#2A001C', '#3A0026', '#4A0030', '#5A003A',
+  
+  // 🪐 CAMADA 2: ASCENSÃO PLANETÁRIA (Terra → Atmosfera)
+  '#320A46', '#4A1464', '#621E82', '#7A28A0', '#9232BE', '#AA3CDC',
+  
+  // 🌌 CAMADA 14: RETORNO AO CÓSMICO (Completando o ciclo)
+  '#56D8FF', '#48EAFF', '#3AFCFF', '#2CFFEE', '#1EFFDC', '#10FFCA',
+  '#02FFB8', '#00FFA6', '#00FF94', '#00FF82', '#00FF70', '#00FF5E',
+  '#00FF4C', '#00FF3A', '#00FF28', '#00FF16', '#00FF04', '#0AFF00',
+  '#1CFF00', '#2EFF00', '#40FF00', '#52FF00', '#64FF00', '#76FF00',
+  '#88FF00', '#9AFF00', '#ACFF00', '#BEFF00', '#D0FF00', '#E2FF00',
+  '#F4FF00', '#FFFF0C', '#FFFF2E', '#FFFF50', '#FFFF72', '#FFFF94',
+  '#FFFFB6', '#FFFFD8', '#FFFFFA', '#F8E6FF', '#F0CCFF', '#E8B2FF',
+  '#E098FF', '#D87EFF', '#D064FF', '#C84AFF', '#C030FF', '#B816FF',
+  '#B00CFF', '#A822FF', '#A038FF', '#984EFF', '#9064FF', '#887AFF',
+  '#8090FF', '#78A6FF', '#70BCFF', '#68D2FF', '#60E8FF', '#58FEFF',
+  '#50FFF4', '#48FFE0', '#40FFCC', '#38FFB8', '#30FFA4', '#28FF90',
+  '#20FF7C', '#18FF68', '#10FF54', '#08FF40', '#00FF2C', '#00FF18',
+  '#00FF04', '#0AFF00', '#1CFF00', '#2EFF00', '#40FF00', '#52FF00',
+  '#64FF00', '#76FF00', '#88FF00', '#9AFF00', '#ACFF00', '#BEFF00',
+  '#D0FF00', '#E2FF00', '#F4FF00', '#FFFF0C', '#FFFF2E', '#FFFF50',
+  '#FFFF72', '#FFFF94', '#FFFFB6', '#FFFFD8', '#FFFFFA', '#F8E6FF'
 ];
 
+ const inputRange = bgColors.map((_, index) => index);
 
+  useEffect(() => {
+    bgColorAnim.setValue(0);
+    
+    Animated.loop(
+      Animated.timing(bgColorAnim, {
+        toValue: bgColors.length - 1,
+        duration: bgColors.length * 1000,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      })
+    ).start();
+  }, []);
 
-  // função que faz a transição de cor continuamente (exemplo simples)
- const animateBg = () => {
-  bgColorAnim.setValue(0);
-  Animated.timing(bgColorAnim, {
-    toValue: bgColors.length,
-    duration: bgColors.length * 2000, // - tempo ideal
-    easing: Easing.inOut(Easing.ease), // Easing in-out muito suave
-    useNativeDriver: false,
-  }).start(() => {
-    setBgColorIndex((prev) => (prev + 1) % bgColors.length);
-    animateBg();
+  const bgColor = bgColorAnim.interpolate({
+    inputRange: inputRange, // ✅ Agora inputRange existe aqui
+    outputRange: bgColors,
   });
-};
-
-
-  // starta a animação de fundo na primeira render (lazy)
-  React.useEffect(() => {
-  Animated.loop(
-    Animated.timing(bgColorAnim, {
-      toValue: 1,
-      duration: bgColors.length * 2000, // controla a velocidade
-      easing: Easing.linear,            // linear evita pausas
-      useNativeDriver: false,
-    })
-  ).start();
-}, []);
 
   // definição das animações (trimado p/ legibilidade)
   const executeAnimation = (type) => {
@@ -1259,7 +1280,7 @@ const bgColors = [
   };
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor }]}>
+    <Animated.View style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.content}>
         <Text style={styles.title}>QuantumLuck</Text>
         <Text style={styles.subtitle}>Feche os olhos, Medite sobre a frase, mentalize seu desejo e acredite:</Text>
