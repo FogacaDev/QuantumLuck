@@ -36,62 +36,57 @@ const AnimatedButton = ({ onPress }) => {
 
   // Cores organizadas por tonalidade para transições mais suaves
   const bgColors = [
-  // 💎 CAMADA 3: CRISTALIZAÇÃO ENERGÉTICA (Púrpuras vibrantes)
-  '#8C3FFF', '#9D54FF', '#AE69FF', '#BF7EFF', '#D093FF', '#E1A8FF',
+  // 💎 CAMADA 3: CRISTALIZAÇÃO ENERGÉTICA (Púrpuras suaves)
+  '#B28AFF', '#BD9AFF', '#C8AAFF', '#D3BAFF', '#DECAFF', '#E9DAFF',
   
-  // 🔮 CAMADA 4: PORTAL DIMENSIONAL (Violetas → Azuis profundos)
-  '#6A11CB', '#5B2BDF', '#4C45F3', '#3D5FFF', '#2E79FF', '#1F93FF',
+  // 🔮 CAMADA 4: PORTAL DIMENSIONAL (Violetas → Azuis suaves)
+  '#7D5BFF', '#6E6EFF', '#5F81FF', '#5094FF', '#41A7FF', '#32BAFF',
   
-  // 🌊 CAMADA 5: ONDAS QUÂNTICAS (Azuis elétricos → Celestes)
-  '#0FA8FF', '#00BCFF', '#00D0FF', '#00E4FF', '#00F8FF', '#0CFFFC',
+  // 🌊 CAMADA 5: ONDAS QUÂNTICAS (Azuis claros → Celestes suaves)
+  '#23CDFF', '#2AD5FF', '#31DDFF', '#38E5FF', '#3FEDFF', '#46F5FF',
   
-  // 🌀 CAMADA 6: VÓRTICE DE CONSCIÊNCIA (Azuis → Turquesas)
-  '#18FFE8', '#24FFD4', '#30FFC0', '#3CFFAC', '#48FF98', '#54FF84',
+  // 🌀 CAMADA 6: VÓRTICE DE CONSCIÊNCIA (Azuis → Turquesas suaves)
+  '#4DFDFF', '#5EFEF5', '#6FFFEB', '#80FFE1', '#91FFD7', '#A2FFCD',
   
-  // 🌿 CAMADA 7: RENASCIMENTO VERDE (Turquesas → Esmeraldas)
-  '#60FF70', '#6CFF5C', '#78FF48', '#84FF34', '#90FF20', '#9CFF0C',
+  // 🌿 CAMADA 7: RENASCIMENTO VERDE (Turquesas → Verdes suaves)
+  '#B3FFC3', '#BFFFB8', '#CBFFAD', '#D7FFA2', '#E3FF97', '#EFFF8C',
   
-  // ✨ CAMADA 8: ILUMINAÇÃO DOURADA (Verdes → Amarelos solares)
-  '#A8FF00', '#B4F000', '#C0E000', '#CCD000', '#D8C000', '#E4B000',
+  // ✨ CAMADA 8: ILUMINAÇÃO DOURADA (Verdes → Amarelos suaves)
+  '#FBFF81', '#F7F577', '#F3EB6D', '#EFE163', '#EBD759', '#E7CD4F',
   
-  // ☀️ CAMADA 9: CENTRO SOLAR (Amarelos → Laranjas radiantes)
-  '#F0A000', '#FC9000', '#FF8000', '#FF700C', '#FF6018', '#FF5024',
+  // ☀️ CAMADA 9: CENTRO SOLAR (Amarelos → Laranjas suaves)
+  '#E3C345', '#E4B63C', '#E5A933', '#E69C2A', '#E78F21', '#E88218',
   
-  // 🔥 CAMADA 10: FOGO TRANSFORMADOR (Laranjas → Vermelhos passionais)
-  '#FF4030', '#FF303C', '#FF2048', '#FF1054', '#FF0060', '#FF006C',
+  // 🔥 CAMADA 10: FOGO TRANSFORMADOR (Laranjas → Vermelhos suaves)
+  '#E9750F', '#EA6B16', '#EB611D', '#EC5724', '#ED4D2B', '#EE4332',
   
-  // ❤️ CAMADA 11: CORAÇÃO CÓSMICO (Vermelhos → Magentas profundos)
-  '#FF0078', '#FF0084', '#FF0090', '#FF009C', '#FF00A8', '#FF00B4',
+  // ❤️ CAMADA 11: CORAÇÃO CÓSMICO (Vermelhos → Rosas suaves)
+  '#EF3939', '#F03F47', '#F14555', '#F24B63', '#F35171', '#F4577F',
   
-  // 🌸 CAMADA 12: FLORESCIMENTO ESPIRITUAL (Magentas → Púrpuras suaves)
-  '#FF00C0', '#F012CC', '#E224D8', '#D436E4', '#C648F0', '#B85AFC',
+  // 🌸 CAMADA 12: FLORESCIMENTO ESPIRITUAL (Rosas → Púrpuras suaves)
+  '#F55D8D', '#F2689A', '#EF73A7', '#EC7EB4', '#E989C1', '#E694CE',
   
-  // 🦋 CAMADA 13: METAMORFOSE FINAL (Púrpuras → Azuis noturnos)
-  '#AA6CFF', '#9C7EFF', '#8E90FF', '#80A2FF', '#72B4FF', '#64C6FF',
-
-  // 🌑 CAMADA 1: RAÍZES TERRENAS (Profundidade → Estabilidade)
-  '#0A0008', '#1A0012', '#2A001C', '#3A0026', '#4A0030', '#5A003A',
+  // 🦋 CAMADA 13: METAMORFOSE FINAL (Púrpuras → Azuis suaves)
+  '#E39FDB', '#E0AAE6', '#DDB5F1', '#DAC0FC', '#D7CBFF', '#D4D6FF',
   
-  // 🪐 CAMADA 2: ASCENSÃO PLANETÁRIA (Terra → Atmosfera)
-  '#320A46', '#4A1464', '#621E82', '#7A28A0', '#9232BE', '#AA3CDC',
+  // 🌑 CAMADA 1: RAÍZES TERRENAS (Profundidade suave → Estabilidade)
+  '#1A0F1D', '#25182A', '#302137', '#3B2A44', '#463351', '#513C5E',
   
-  // 🌌 CAMADA 14: RETORNO AO CÓSMICO (Completando o ciclo)
-  '#56D8FF', '#48EAFF', '#3AFCFF', '#2CFFEE', '#1EFFDC', '#10FFCA',
-  '#02FFB8', '#00FFA6', '#00FF94', '#00FF82', '#00FF70', '#00FF5E',
-  '#00FF4C', '#00FF3A', '#00FF28', '#00FF16', '#00FF04', '#0AFF00',
-  '#1CFF00', '#2EFF00', '#40FF00', '#52FF00', '#64FF00', '#76FF00',
-  '#88FF00', '#9AFF00', '#ACFF00', '#BEFF00', '#D0FF00', '#E2FF00',
-  '#F4FF00', '#FFFF0C', '#FFFF2E', '#FFFF50', '#FFFF72', '#FFFF94',
-  '#FFFFB6', '#FFFFD8', '#FFFFFA', '#F8E6FF', '#F0CCFF', '#E8B2FF',
-  '#E098FF', '#D87EFF', '#D064FF', '#C84AFF', '#C030FF', '#B816FF',
-  '#B00CFF', '#A822FF', '#A038FF', '#984EFF', '#9064FF', '#887AFF',
-  '#8090FF', '#78A6FF', '#70BCFF', '#68D2FF', '#60E8FF', '#58FEFF',
-  '#50FFF4', '#48FFE0', '#40FFCC', '#38FFB8', '#30FFA4', '#28FF90',
-  '#20FF7C', '#18FF68', '#10FF54', '#08FF40', '#00FF2C', '#00FF18',
-  '#00FF04', '#0AFF00', '#1CFF00', '#2EFF00', '#40FF00', '#52FF00',
-  '#64FF00', '#76FF00', '#88FF00', '#9AFF00', '#ACFF00', '#BEFF00',
-  '#D0FF00', '#E2FF00', '#F4FF00', '#FFFF0C', '#FFFF2E', '#FFFF50',
-  '#FFFF72', '#FFFF94', '#FFFFB6', '#FFFFD8', '#FFFFFA', '#F8E6FF'
+  // 🪐 CAMADA 2: ASCENSÃO PLANETÁRIA (Terra suave → Atmosfera suave)
+  '#5C456B', '#60497C', '#644D8D', '#68519E', '#6C55AF', '#7059C0',
+  
+  // 🌌 CAMADA 14: RETORNO AO CÓSMICO (Completando o ciclo suave)
+  '#745DD1', '#7876E2', '#7C8FF3', '#80A8FF', '#84C1FF', '#88DAFF',
+  '#8CF3FF', '#90FCFF', '#94FFFA', '#98FFF0', '#9CFFE6', '#A0FFDC',
+  '#A4FFD2', '#A8FFC8', '#ACFFBE', '#B0FFB4', '#B4FFAA', '#B8FFA0',
+  '#BCFF96', '#C0FF8C', '#C4FF82', '#C8FF78', '#CCFF6E', '#D0FF64',
+  '#D4FF5A', '#D8FF50', '#DCFF46', '#E0FF3C', '#E4FF32', '#E8FF28',
+  '#ECFF1E', '#F0FF14', '#F4FF0A', '#F8FF00', '#FCFF0A', '#FFFA14',
+  '#FFF51E', '#FFF028', '#FFEB32', '#FFE63C', '#FFE146', '#FFDC50',
+  '#FFD75A', '#FFD264', '#FFCD6E', '#FFC878', '#FFC382', '#FFBE8C',
+  '#FFB996', '#FFB4A0', '#FFAFAA', '#FFAAB4', '#FFA5BE', '#FFA0C8',
+  '#FF9BD2', '#FF96DC', '#FF91E6', '#FF8CF0', '#FF87FA', '#FF82FF',
+  '#FF88FF', '#FF8EFF', '#FF94FF', '#FF9AFF', '#FFA0FF', '#FFA6FF'
 ];
 
  const inputRange = bgColors.map((_, index) => index);
