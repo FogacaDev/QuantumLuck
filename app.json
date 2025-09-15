@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.quantumluck.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +27,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "description": "QuantumLuck: seu app de sorte e diversão!",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
     "extra": {
       "eas": {
         "projectId": "472f9979-eecd-4fd9-ab53-7d153d4e5eb6"
